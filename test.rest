@@ -1,0 +1,18 @@
+# get http://localhost:3001/api/relationship/getRelations
+
+# post http://localhost:3001/api/relationship/addRelations
+# Content-Type: application/json
+
+# {
+#     "firstPerson":"rashid",
+#     "secondPerson":"asif",
+#     "relation":"brother in law",
+#     "conclusion": "rashid is asif's brother in law"
+# }
+
+post http://localhost:3001/api/relationship/saveData
+Content-Type: application/json
+
+{
+
+}
