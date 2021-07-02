@@ -1,1 +1,1 @@
-web: npm i;node index.js; cd ui; npm i; react-scripts start
+web: npm i; node index.js;

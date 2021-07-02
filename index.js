@@ -30,10 +30,10 @@ app.use(bodyParser.json({
 
 const api = require("./apis/index");
 api(app);
-app.get('*.*', express.static(__dirname + '/ui/public', { maxAge: '1y' }));
+app.get('*.*', express.static(__dirname + '/ui/build', { maxAge: '1y' }));
 // serve frontend paths
 app.all('*', function (req, res) {
-    res.status(200).sendFile(`/`, { root: __dirname + '/ui/public' });
+    res.status(200).sendFile(`/`, { root: __dirname + '/ui/build' });
 });
 
 const port = process.env.PORT || config.port;
