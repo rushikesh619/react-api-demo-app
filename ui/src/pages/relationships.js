@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import MeterialTable from 'material-table';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import { Container, Link, Button } from '@material-ui/core/'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Container, Link, Button, TextField, Select, MenuItem, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core/'
 import axios from 'axios';
+
+const Relate = ["brother", "sister", "father", "mother", "brother in law", "sister in law", "father in law", "mother in law", "son", "daughter", "nephew", "niece", "grand Father", "grand Mother", "Uncle", "aunty"];
 
 const useStyles = makeStyles({
   root: {
@@ -13,17 +16,31 @@ const useStyles = makeStyles({
   table: {
     minWidth: 700,
   },
-  Button: {
-
-  }
 });
 
 function Relationship() {
-  const [relations, setRelations] = useState([])
+  const [relations, setRelations] = useState([]);
+  const [persons, setPersons] = useState([]);
+  const [matrix, setMatrix] = useState([]);
+  const [path, setPath] = useState([]);
+  const [person1, setPerson1] = useState([]);
+  const [person2, setPerson2] = useState([]);
   useEffect(() => {
     axios.get('/api/relationship/getRelations').then((res) => {
       console.log(res);
-      setRelations(res.data.relationship)
+      setRelations(res.data.relationship);
+      console.log(res.data.persons);
+      let temp = [];
+      const peoples = res.data.persons;
+      console.log(peoples);
+      peoples.forEach(element => {
+        let name = element.name;
+        temp.push(name);
+      });
+      console.log(temp);
+      setPersons(temp);
+      console.log(res.data.matrix);
+      setMatrix(res.data.matrix);
     }).catch(err => {
       console.log(err);
     })
@@ -31,13 +48,66 @@ function Relationship() {
 
   const columns = [
     {
-      title: 'First Person', field: 'firstPerson'
+      title: 'First Person',
+      field: 'firstPerson',
+      editComponent: ({ value, onRowDataChange, rowData }) => (
+        <Select
+          value={value}
+          onChange={(event) => {
+            onRowDataChange({
+              ...rowData,
+              firstPerson: (event.target.value) ?? "",
+            });
+          }}
+        >
+          {persons.map((person) => (
+            <MenuItem key={person} value={person}>
+              {person}
+            </MenuItem>
+          ))}
+        </Select>
+      ),
     },
     {
-      title: 'Second Person', field: 'secondPerson'
+      title: 'Second Person',
+      field: 'secondPerson',
+      editComponent: ({ value, onRowDataChange, rowData }) => (
+        <Select
+          value={value}
+          onChange={(event) => {
+            onRowDataChange({
+              ...rowData,
+              secondPerson: (event.target.value) ?? "",
+            });
+          }}
+        >
+          {persons.map((person) => (
+            <MenuItem key={person} value={person}>
+              {person}
+            </MenuItem>
+          ))}
+        </Select>
+      ),
     },
     {
-      title: 'Relation', field: 'relation'
+      title: 'Relation', field: 'relation',
+      editComponent: ({ value, onRowDataChange, rowData }) => (
+        <Select
+          value={value}
+          onChange={(event) => {
+            onRowDataChange({
+              ...rowData,
+              relation: (event.target.value) ?? "",
+            });
+          }}
+        >
+          {Relate.map((relation) => (
+            <MenuItem key={relation} value={relation}>
+              {relation}
+            </MenuItem>
+          ))}
+        </Select>
+      ),
     },
     {
       title: 'Conclusion', field: 'conclusion'
@@ -51,9 +121,51 @@ function Relationship() {
       .then(response => {
         console.log(response.data);
         if (response.data.success === true) {
-          alert("todos saved successfully");
+          alert("data saved successfully");
         } else {
-          alert("todos not saved");
+          alert("data not saved");
+        }
+      }).catch(error => {
+        alert(error);
+      });
+  }
+
+  const handleChange1 = (event) => {
+    setPerson1(event.target.value);
+  };
+  const handleChange2 = (event) => {
+    setPerson2(event.target.value);
+  };
+
+  const addPerson = () => {
+    const newItem = document.getElementById("activity").value;
+    const temp = {
+      name: newItem
+    }
+    axios.post('/api/relationship/addPersons', temp)
+      .then((res) => {
+        console.log(res);
+      }).catch(err => {
+        console.log(err);
+      })
+  }
+
+  const degreeOfRelation = async () => {
+    const data = [person1, person2];
+    await axios.post('/api/relationship/degreeOfRelation', data)
+      .then(response => {
+        console.log(response.data.result);
+        if (response.data.result) {
+          if (response.data.result) {
+            var out = '';
+            for (var p in response.data.result) {
+              out += p + ': ' + response.data.result[p] + '\n';
+            }
+            alert(out);
+          }
+        }
+        if (response.data.result == false) {
+          alert('persons dont have any relation')
         }
       }).catch(error => {
         alert(error);
@@ -70,11 +182,26 @@ function Relationship() {
           To demonstrate the usage of material table, UI and rest-api
         </Typography>
         <Typography variant="h5" align='center' gutterBottom >
-          Developers Info
+          Developers Info :-
           <Link href="http://rushikesh619.github.io/" >
             http://rushikesh619.github.io/
           </Link>
         </Typography>
+      </Container>
+      <Container>
+        <Typography align='center' gutterBottom>
+          Add persons to the system from here:
+          <form>
+            <TextField id="activity" label='Persons' variant='outlined' />
+            <div>
+              <Button variant="contained" color="primary" onClick={addPerson}>
+                submit
+              </Button>
+            </div>
+          </form>
+        </Typography>
+      </Container>
+      <Container maxWidth='md'>
         <Typography align='center' gutterBottom >
           <Button color='primary' variant='contained' onClick={saveData}>
             Save your data
@@ -130,6 +257,46 @@ function Relationship() {
               }),
           }}
         />
+      </Container>
+      <Container>
+        <Typography align='center' gutterBottom>
+          Select Peoples you want to see relationship between:
+          <form>
+            <TextField
+              id="standard-select-currency"
+              select
+              label="person 1"
+              value={person1}
+              onChange={handleChange1}
+              helperText="Please select person 1"
+            >
+              {persons.map((e) => (
+                <MenuItem value={e}>
+                  {e}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              id="standard-select-currency"
+              select
+              label="person 2"
+              value={person2}
+              onChange={handleChange2}
+              helperText="Please select person 2"
+            >
+              {persons.map((e) => (
+                <MenuItem value={e}>
+                  {e}
+                </MenuItem>
+              ))}
+            </TextField>
+            <div>
+              <Button variant="contained" color="primary" onClick={degreeOfRelation}>
+                submit
+              </Button>
+            </div>
+          </form>
+        </Typography>
       </Container>
     </div>
   )

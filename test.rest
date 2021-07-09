@@ -10,9 +10,16 @@
 #     "conclusion": "rashid is asif's brother in law"
 # }
 
-post http://localhost:3001/api/relationship/saveData
+# post http://localhost:3001/api/relationship/addPersons
+# Content-Type: application/json
+
+# {
+#     "name":"ashok"
+# }
+
+post http://localhost:3001/api/relationship/degreeOfRelation
 Content-Type: application/json
 
 {
-
+    "peoples": [ "raju", "ashok" ]
 }
