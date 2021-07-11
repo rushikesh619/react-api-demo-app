@@ -3,60 +3,66 @@ const Relationship = require('../models/relationship');
 const Persons = require('../models/persons');
 
 class Graph {
-    #nodes;
+    nodes;
 
     constructor() {
-        this.#nodes = {};
+        this.nodes = {};
     }
 
     addNode(node) {
-        this.#nodes[node] = [];
+        this.nodes[node] = [];
     }
 
     addEdge(person1, person2) {
-        if (!this.#nodes[person1] || !this.#nodes[person2]) {
+        if (!this.nodes[person1] || !this.nodes[person2]) {
             return false;
         }
-        if (!this.#nodes[person1].includes(person2)) {
-            this.#nodes[person1].push(person2)
+        if (!this.nodes[person1].includes(person2)) {
+            this.nodes[person1].push(person2)
         }
-        if (!this.#nodes[person2].includes(person1)) {
-            this.#nodes[person2].push(person1)
+        if (!this.nodes[person2].includes(person1)) {
+            this.nodes[person2].push(person1)
         }
     }
     returnNode() {
-        return this.#nodes
+        return this.nodes
     }
 
-    bsf(p1, p2) {
-        console.log(p1);
-        console.log(p2);
-        let queue = [p1];
+    findPath(p1, p2) {
         const visited = {};
-        console.log(queue);
-        while (queue.length) {
-            const current = queue.shift();
-            if (visited[current]) {
-                continue;
-            }
+        for (var p in this.nodes) {
+            visited[p] = false;
+        }
+        let path = [];
+        path.push(p1);
+        const result = this.dfs(visited, p1, p2, path);
+        return result;
+    }
 
-            if (current == p2) {
-                visited[current] = true;
-                console.log(visited)
-                return visited;
-            }
-
-            visited[current] = true;
-
-            console.log(this.#nodes[current]);
-
-            let neighbour = this.#nodes[current];
+    dfs(visited, p1, p2, path) {
+        //console.log(this.nodes);
+        visited[p1] = true;
+        let dfsResult = [];
+        if (p1 === p2) {
+            dfsResult = [...path];
+        }
+        else {
+            let neighbour = this.nodes[p1];
             for (let i = 0; i < neighbour.length; i++) {
-                console.log(neighbour[i])
-                queue.push(neighbour[i])
+                let y = neighbour[i];
+                if (visited[y] === false) {
+                    visited[y] = true;
+                    path.push(y);
+                    dfsResult = [...this.dfs(visited, y, p2, path)];
+                    if (dfsResult.length) {
+                        return dfsResult;
+                    }
+                    path.pop();
+                }
             }
         }
-        return false;
+        visited[p1] = false;
+        return dfsResult;
     }
 }
 
@@ -172,12 +178,11 @@ router.get('/getRelations', async (req, res) => {
 
 router.post('/degreeOfRelation', async (req, res) => {
     try {
-        console.log(req.body);
         const p1 = req.body[0];
         const p2 = req.body[1];
-        const result = g.bsf(p1, p2)
+        const result = g.findPath(p1, p2)
         console.log(result);
-        res.status(200).json({ result });
+        res.status(200).json({ result: result });
     } catch (ex) {
         console.log(ex);
         throw ex;

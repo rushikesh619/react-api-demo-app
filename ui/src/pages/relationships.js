@@ -21,8 +21,6 @@ const useStyles = makeStyles({
 function Relationship() {
   const [relations, setRelations] = useState([]);
   const [persons, setPersons] = useState([]);
-  const [matrix, setMatrix] = useState([]);
-  const [path, setPath] = useState([]);
   const [person1, setPerson1] = useState([]);
   const [person2, setPerson2] = useState([]);
   useEffect(() => {
@@ -39,8 +37,6 @@ function Relationship() {
       });
       console.log(temp);
       setPersons(temp);
-      console.log(res.data.matrix);
-      setMatrix(res.data.matrix);
     }).catch(err => {
       console.log(err);
     })
@@ -155,16 +151,11 @@ function Relationship() {
     await axios.post('/api/relationship/degreeOfRelation', data)
       .then(response => {
         console.log(response.data.result);
-        if (response.data.result) {
-          if (response.data.result) {
-            var out = '';
-            for (var p in response.data.result) {
-              out += p + ': ' + response.data.result[p] + '\n';
-            }
-            alert(out);
-          }
+        const result = response.data.result;
+        if (result.length >= 1) {
+          alert(response.data.result);
         }
-        if (response.data.result == false) {
+        if (result == false) {
           alert('persons dont have any relation')
         }
       }).catch(error => {

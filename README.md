@@ -3,7 +3,7 @@ User can interact with the app. Relationship Application is an interactive web a
 using ReactJS for Frontend and Material UI for designing component pages. Backend part is developed 
 using NodeJS, Express and mongoDB. Index.js is the entery point to our application. mongoDB connection
 and port creation part of backend takes place here. api's are defined in api directory and mongo models
-are defined in models directory.
+are defined in models directory.UI directory contains react code.
 
 
 1. we can use AWS EC2 instance to host our nodejs application as it is highly reliable, provides 
