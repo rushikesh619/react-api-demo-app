@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");;
 
 const Relationship = require("./models/relationship");
 const config = require("./config");
+const api = require("./apis/index");
 
 mongoose.connect(config.db, {
     useNewUrlParser: true,
@@ -28,9 +29,9 @@ app.use(bodyParser.json({
     limit: "1000kb"
 }));
 
-const api = require("./apis/index");
+app.get('*.*', express.static(__dirname + '/ui/build'));
+
 api(app);
-app.get('*.*', express.static(__dirname + '/ui/build', { maxAge: '1y' }));
 // serve frontend paths
 app.all('*', function (req, res) {
     res.status(200).sendFile(`/`, { root: __dirname + '/ui/build' });
