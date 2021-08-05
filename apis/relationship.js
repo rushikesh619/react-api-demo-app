@@ -3,8 +3,6 @@ const Relationship = require('../models/relationship');
 const Persons = require('../models/persons');
 
 class Graph {
-    nodes;
-
     constructor() {
         this.nodes = {};
     }
@@ -53,7 +51,7 @@ class Graph {
                 if (visited[y] === false) {
                     visited[y] = true;
                     path.push(y);
-                    dfsResult = [...this.dfs(visited, y, p2, path)];
+                    dfsResult = this.dfs(visited, y, p2, path);
                     if (dfsResult.length) {
                         return dfsResult;
                     }
